@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Маршрутный лист · Pajero-2026</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #12151b;
+    --panel: #191d25;
+    --panel-2: #1f2430;
+    --line: #2a3040;
+    --text: #e9ebef;
+    --text-dim: #8a92a3;
+    --amber: #ff8a3d;
+    --amber-dim: #7a4a26;
+    --teal: #45d6c0;
+    --teal-dim: #204a44;
+    --red: #ff5d5d;
+    --radius: 10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;}
+  ::selection{background:var(--amber);color:#1a1a1a;}
+
+  .app{
+    display:grid;
+    grid-template-rows:auto 1fr;
+    min-height:100vh;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    padding:22px 28px 18px;
+    background:linear-gradient(180deg, #14181f 0%, #12151b 100%);
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .h-left{display:flex; flex-direction:column; gap:6px;}
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.18em;
+    color:var(--amber);
+    text-transform:uppercase;
+  }
+  h1{
+    margin:0;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:26px;
+    letter-spacing:-.01em;
+  }
+  .route-line{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    color:var(--text-dim);
+  }
+  .route-line b{color:var(--text); font-weight:500;}
+
+  .odometer{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:10px 18px;
+  }
+  .odo-digits{
+    font-family:'JetBrains Mono', monospace;
+    font-size:28px;
+    font-weight:700;
+    letter-spacing:.02em;
+    color:var(--amber);
+    min-width:64px;
+    text-align:center;
+  }
+  .odo-digits span{color:var(--text-dim); font-size:18px;}
+  .odo-ticks{display:flex; gap:4px;}
+  .odo-tick{
+    width:9px; height:22px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:2px;
+    transition:background .25s, border-color .25s;
+  }
+  .odo-tick.on{ background:var(--teal); border-color:var(--teal); box-shadow:0 0 8px rgba(69,214,192,.5);}
+  .odo-label{font-family:'JetBrains Mono', monospace; font-size:10px; color:var(--text-dim); letter-spacing:.1em; text-transform:uppercase;}
+
+  /* ---------- MAIN LAYOUT ---------- */
+  main{
+    display:grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap:1px;
+    background:var(--line);
+    flex:1;
+    min-height:0;
+  }
+  #map{
+    background:var(--panel);
+    min-height:420px;
+  }
+  .leaflet-container{background:#171b23 !important; font-family:'Inter',sans-serif;}
+
+  .panel{
+    background:var(--bg);
+    overflow-y:auto;
+    max-height:calc(100vh - 96px);
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .stop-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    cursor:pointer;
+    transition:border-color .2s, transform .15s;
+  }
+  .stop-card:hover{border-color:#3a4258; transform:translateX(2px);}
+  .stop-card.visited{border-color:var(--teal-dim); background:linear-gradient(180deg, rgba(69,214,192,.06), transparent 40%), var(--panel);}
+  .stop-card.active{border-color:var(--amber);}
+
+  .stop-top{display:flex; align-items:center; gap:10px;}
+  .stop-num{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size:12px;
+    width:24px; height:24px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--amber-dim);
+    color:var(--amber);
+    flex-shrink:0;
+    transition:.2s;
+  }
+  .stop-card.visited .stop-num{border-color:var(--teal); color:var(--teal); background:var(--teal-dim);}
+  .stop-titles{display:flex; flex-direction:column; gap:1px; min-width:0;}
+  .stop-name{font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:15px; line-height:1.2;}
+  .stop-sub{font-size:12px; color:var(--text-dim);}
+  .stop-date{
+    margin-left:auto;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--text-dim);
+    white-space:nowrap;
+    text-align:right;
+  }
+  .stop-desc{font-size:13px; color:#c3c8d3; line-height:1.45;}
+
+  .stop-note{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:6px;
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    font-size:12.5px;
+    padding:7px 9px;
+    resize:none;
+  }
+  .stop-note::placeholder{color:#5a6274;}
+  .stop-note:focus{outline:none; border-color:var(--amber-dim);}
+
+  .stop-actions{display:flex; align-items:center; gap:10px;}
+  .mark-btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    border:1px solid var(--amber-dim);
+    background:transparent;
+    color:var(--amber);
+    padding:7px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    transition:.18s;
+  }
+  .mark-btn:hover{background:rgba(255,138,61,.1);}
+  .stop-card.visited .mark-btn{
+    border-color:var(--teal);
+    color:var(--teal);
+  }
+  .stop-card.visited .mark-btn:hover{background:rgba(69,214,192,.12);}
+  .visited-stamp{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--teal);
+  }
+
+  footer{
+    padding:10px 28px;
+    border-top:1px solid var(--line);
+    background:var(--panel);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  footer p{margin:0; font-size:11.5px; color:var(--text-dim);}
+  .reset-btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--text-dim);
+    padding:7px 12px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .reset-btn:hover{border-color:var(--red); color:var(--red);}
+
+  .leaflet-popup-content-wrapper{
+    background:var(--panel); color:var(--text); border-radius:8px;
+    font-family:'Inter',sans-serif; border:1px solid var(--line);
+  }
+  .leaflet-popup-tip{background:var(--panel);}
+  .popup-title{font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:14px; margin-bottom:2px;}
+  .popup-date{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--amber); margin-bottom:4px;}
+  .popup-desc{font-size:12.5px; color:#c3c8d3;}
+
+  .div-marker{
+    display:flex; align-items:center; justify-content:center;
+    width:30px; height:30px;
+    border-radius:50%;
+    background:var(--panel);
+    border:2px solid var(--amber);
+    color:var(--amber);
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700; font-size:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,.5);
+  }
+  .div-marker.visited{ border-color:var(--teal); color:var(--teal); background:var(--teal-dim);}
+
+  @media (max-width: 860px){
+    main{grid-template-columns:1fr; grid-template-rows:340px 1fr;}
+    .panel{max-height:none;}
+    header{padding:16px;}
+    h1{font-size:20px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="h-left">
+      <div class="eyebrow">Маршрутный лист · перегон авто</div>
+      <h1>Южно-Сахалинск → Кавминводы → Чехов</h1>
+      <div class="route-line">16–22 <b>июля 2026</b> · рейс <b>SU&nbsp;1747</b> / <b>SU&nbsp;1314</b> · бронь <b>VVZL9G</b> · 10 точек маршрута</div>
+    </div>
+    <div class="odometer">
+      <div>
+        <div class="odo-digits" id="odoDigits">0<span>/9</span></div>
+        <div class="odo-label">точек пройдено</div>
+      </div>
+      <div class="odo-ticks" id="odoTicks"></div>
+    </div>
+  </header>
+
+  <main>
+    <div id="map"></div>
+    <div class="panel" id="panel"></div>
+  </main>
+
+  <footer>
+    <p>Отметки сохраняются в этом браузере автоматически. Открывайте страницу на том же устройстве, чтобы видеть прогресс.</p>
+    <button class="reset-btn" id="resetBtn">Сбросить прогресс</button>
+  </footer>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const STORAGE_KEY = 'pajero-route-progress-v1';
+
+const stops = [
+  {
+    id:1, type:'flight',
+    name:'Южно-Сахалинск', sub:'Аэропорт · вылет',
+    date:'16 июля, 16:00',
+    desc:'Вылет рейсом SU 1747 в Москву (Шереметьево). В пути 8 ч 55 мин.',
+    lat:46.9591, lng:142.7178
+  },
+  {
+    id:2, type:'flight',
+    name:'Москва (Шереметьево)', sub:'Пересадка',
+    date:'16 июля, 16:55 → 19:35',
+    desc:'Стыковка 2 ч 40 мин без смены терминала. Вылет рейсом SU 1314 в Минеральные Воды.',
+    lat:55.9726, lng:37.4146
+  },
+  {
+    id:3, type:'flight',
+    name:'Минеральные Воды', sub:'Аэропорт · прилёт',
+    date:'16 июля, 22:35',
+    desc:'Прилёт на Кавказ. Дальше — трансфер до Ессентуков.',
+    lat:44.2251, lng:43.0819
+  },
+  {
+    id:4, type:'stay',
+    name:'Ессентуки, ул. Шмидта, 94', sub:'Заселение',
+    date:'16 июля, ≈23:30',
+    desc:'Заселение на ночь перед завтрашней регистрацией в ГИБДД.',
+    lat:44.0453, lng:42.8578
+  },
+  {
+    id:5, type:'task',
+    name:'Ессентуки, ул. Баучидзе, 23', sub:'ОГИБДД',
+    date:'17 июля, 9:00',
+    desc:'Регистрация ТС.',
+    lat:44.0470, lng:42.8610
+  },
+  {
+    id:6, type:'task',
+    name:'Минеральные Воды', sub:'Погрузка на автовоз',
+    date:'17 июля (вторая половина) – 18 июля',
+    desc:'Передача автомобиля перевозчику для доставки в Московскую область.',
+    lat:44.2019, lng:43.1367
+  },
+  {
+    id:7, type:'flight',
+    name:'Минеральные Воды', sub:'Аэропорт · вылет',
+    date:'19 июля',
+    desc:'Обратный вылет в Москву.',
+    lat:44.2261, lng:43.0829
+  },
+  {
+    id:8, type:'stay',
+    name:'Москва, Красный Строитель', sub:'Заселение',
+    date:'19–20 июля',
+    desc:'Заселение, ожидание автовоза с автомобилем.',
+    lat:55.5980, lng:37.5910
+  },
+  {
+    id:9, type:'task',
+    name:'Симферопольское шоссе, 3Б', sub:'Встреча автовоза',
+    date:'20–21 июля',
+    desc:'Встреча автомобиля после доставки автовозом из Минеральных Вод.',
+    lat:55.5670, lng:37.5670
+  },
+  {
+    id:10, type:'task',
+    name:'Симферопольское шоссе, 3Б', sub:'Терминал «Интермодал Логистикс Плюс»',
+    date:'21–22 июля',
+    desc:'Сдача автомобиля в терминал для контейнерной ж/д отправки на Сахалин.',
+    lat:55.5680, lng:37.5680
+  }
+];
+
+// segments: [fromIndex, toIndex, isFlight]
+const segments = [[0,1,true],[1,2,true],[2,3,false],[3,4,false],[4,5,false],[5,6,true],[6,7,false],[7,8,false],[8,9,false]];
+
+function loadProgress(){
+  try{
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  }catch(e){ return {}; }
+}
+function saveProgress(p){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+}
+let progress = loadProgress();
+
+// ---------- MAP ----------
+const map = L.map('map', { zoomControl:true }).setView([48.5, 65], 3.2);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CARTO',
+  maxZoom: 19
+}).addTo(map);
+
+const markers = [];
+
+function makeIcon(stop, visited){
+  return L.divIcon({
+    className:'',
+    html:`<div class="div-marker ${visited?'visited':''}">${stop.id}</div>`,
+    iconSize:[30,30],
+    iconAnchor:[15,15],
+    popupAnchor:[0,-14]
+  });
+}
+
+stops.forEach((stop, i)=>{
+  const visited = !!(progress[stop.id] && progress[stop.id].visited);
+  const marker = L.marker([stop.lat, stop.lng], { icon: makeIcon(stop, visited) }).addTo(map);
+  marker.bindPopup(
+    `<div class="popup-title">${stop.id}. ${stop.name}</div>
+     <div class="popup-date">${stop.date}</div>
+     <div class="popup-desc">${stop.desc}</div>`
+  );
+  marker.on('click', ()=> focusStop(stop.id));
+  markers.push(marker);
+});
+
+segments.forEach(([a,b,isFlight])=>{
+  L.polyline([[stops[a].lat, stops[a].lng],[stops[b].lat, stops[b].lng]], {
+    color: isFlight ? '#8a92a3' : '#ff8a3d',
+    weight: isFlight ? 1.6 : 2.2,
+    dashArray: isFlight ? '2 8' : null,
+    opacity: 0.85
+  }).addTo(map);
+});
+
+const bounds = L.latLngBounds(stops.map(s=>[s.lat,s.lng]));
+map.fitBounds(bounds, { padding:[40,40] });
+
+// ---------- PANEL ----------
+const panel = document.getElementById('panel');
+
+function renderPanel(){
+  panel.innerHTML = '';
+  stops.forEach(stop=>{
+    const rec = progress[stop.id] || {};
+    const card = document.createElement('div');
+    card.className = 'stop-card' + (rec.visited ? ' visited' : '');
+    card.dataset.id = stop.id;
+
+    card.innerHTML = `
+      <div class="stop-top">
+        <div class="stop-num">${stop.id}</div>
+        <div class="stop-titles">
+          <div class="stop-name">${stop.name}</div>
+          <div class="stop-sub">${stop.sub}</div>
+        </div>
+        <div class="stop-date">${stop.date}</div>
+      </div>
+      <div class="stop-desc">${stop.desc}</div>
+      <textarea class="stop-note" rows="1" placeholder="Заметка на точке (необязательно)…">${rec.note || ''}</textarea>
+      <div class="stop-actions">
+        <button class="mark-btn">${rec.visited ? 'Снять отметку' : 'Мы на точке'}</button>
+        ${rec.visited && rec.timestamp ? `<span class="visited-stamp">✓ отмечено ${rec.timestamp}</span>` : ''}
+      </div>
+    `;
+
+    card.querySelector('.mark-btn').addEventListener('click', (e)=>{
+      e.stopPropagation();
+      toggleVisited(stop.id);
+    });
+    card.querySelector('.stop-note').addEventListener('click', e=>e.stopPropagation());
+    card.querySelector('.stop-note').addEventListener('change', (e)=>{
+      progress[stop.id] = progress[stop.id] || {};
+      progress[stop.id].note = e.target.value;
+      saveProgress(progress);
+    });
+    card.addEventListener('click', ()=> focusStop(stop.id));
+
+    panel.appendChild(card);
+  });
+}
+
+function toggleVisited(id){
+  const now = new Date();
+  const stamp = now.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'}) + ' ' + now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+  progress[id] = progress[id] || {};
+  progress[id].visited = !progress[id].visited;
+  progress[id].timestamp = progress[id].visited ? stamp : null;
+  saveProgress(progress);
+  renderPanel();
+  updateMarkers();
+  updateOdometer();
+}
+
+function updateMarkers(){
+  stops.forEach((stop, i)=>{
+    const visited = !!(progress[stop.id] && progress[stop.id].visited);
+    markers[i].setIcon(makeIcon(stop, visited));
+  });
+}
+
+function focusStop(id){
+  const stop = stops.find(s=>s.id===id);
+  map.flyTo([stop.lat, stop.lng], 9, { duration: 0.7 });
+  const idx = stops.indexOf(stop);
+  markers[idx].openPopup();
+  document.querySelectorAll('.stop-card').forEach(c=>c.classList.remove('active'));
+  const card = panel.querySelector(`.stop-card[data-id="${id}"]`);
+  if(card){ card.classList.add('active'); card.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+}
+
+// ---------- ODOMETER ----------
+const odoTicks = document.getElementById('odoTicks');
+stops.forEach(()=>{
+  const t = document.createElement('div');
+  t.className = 'odo-tick';
+  odoTicks.appendChild(t);
+});
+
+function updateOdometer(){
+  const visitedCount = stops.filter(s => progress[s.id] && progress[s.id].visited).length;
+  document.getElementById('odoDigits').innerHTML = `${visitedCount}<span>/${stops.length}</span>`;
+  const ticks = document.querySelectorAll('.odo-tick');
+  ticks.forEach((t,i)=> t.classList.toggle('on', i < visitedCount));
+}
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(confirm('Сбросить все отметки о прохождении точек?')){
+    progress = {};
+    saveProgress(progress);
+    renderPanel();
+    updateMarkers();
+    updateOdometer();
+  }
+});
+
+renderPanel();
+updateOdometer();
+</script>
+</body>
+</html>
