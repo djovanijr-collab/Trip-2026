@@ -311,11 +311,11 @@
   <header>
     <div>
       <div class="eyebrow">Маршрутный лист</div>
-      <h1>Южно-Сахалинск → Кавминводы → Москва</h1>
+      <h1>Южно-Сахалинск → КМВ → Москва</h1>
     </div>
     <div class="odometer">
       <div>
-        <div class="odo-digits" id="odoDigits">0<span>/10</span></div>
+        <div class="odo-digits" id="odoDigits">0<span>/11</span></div>
         <div class="odo-label">пройдено</div>
       </div>
       <div class="odo-ticks" id="odoTicks"></div>
@@ -323,10 +323,6 @@
   </header>
 
   <main id="timeline"></main>
-
-  <footer>
-    <p>Отметки о пройденных точках обновляются вручную — просто напиши в чат Claude, когда точка пройдена.</p>
-  </footer>
 </div>
 
 <script>
@@ -334,13 +330,13 @@ const stops = [
   {
     id:1, name:'Южно-Сахалинск', sub:'Аэропорт · вылет',
     date:'16 июля, 16:00',
-    desc:'Вылет рейсом SU 1747 в Москву (Шереметьево). В пути 8 ч 55 мин.',
+    desc:'Вылет рейсом SU 1747 в Москву (Шереметьево). В пути 8 ч 55 мин. Прилёт — 16:55.',
     visited:false
   },
   {
     id:2, name:'Москва (Шереметьево)', sub:'Пересадка',
-    date:'16 июля, 16:55 → 19:35',
-    desc:'Стыковка 2 ч 40 мин без смены терминала. Вылет рейсом SU 1314 в Минеральные Воды.',
+    date:'16 июля, вылет 19:35',
+    desc:'Вылет рейсом SU 1314 в Минеральные Воды — 19:35. В пути 3 ч. Прилёт — 22:35.',
     visited:false
   },
   {
@@ -368,33 +364,39 @@ const stops = [
     visited:false
   },
   {
-    id:7, name:'Минеральные Воды', sub:'Аэропорт · вылет',
+    id:7, name:'Ессентуки', sub:'Свободное время',
+    date:'18–19 июля',
+    desc:'Машина уже в пути на автовозе — остаёмся в Ессентуках и смотрим достопримечательности Кавказских Минеральных Вод.',
+    visited:false
+  },
+  {
+    id:8, name:'Минеральные Воды', sub:'Аэропорт · вылет',
     date:'19 июля',
     desc:'Обратный вылет в Москву.',
     visited:false
   },
   {
-    id:8, name:'Москва, Красный Строитель', sub:'Заселение',
+    id:9, name:'Москва, Красный Строитель', sub:'Заселение',
     date:'19 июля, вечером',
-    desc:'Днём прилетаем из Минеральных Вод, гуляем по Москве, вечером — заселение на Красном Строителе.',
+    desc:'Днём прилетаем из Минеральных Вод, гуляем по Москве, вечером — заселение на Красном Строителе. Ждём автовоз с машиной из Минвод.',
     visited:false
   },
   {
-    id:9, name:'Симферопольское шоссе, 3Б', sub:'Встреча автовоза',
+    id:10, name:'п. Битца, Симферопольское шоссе, 3Б', sub:'Встреча автовоза',
     date:'20–21 июля',
     desc:'Если автовоз приходит в первой половине дня и машину выдают до обеда — едем сразу на Люторецкий терминал. Если ближе к вечеру — едем ночевать в Чехов, а на терминал — утром следующего дня.',
     visited:false
   },
   {
-    id:10, name:'Люторецкий терминал', sub:'«Интермодал Логистикс Плюс»',
-    date:'21 июля вечером — или 22 июля утром',
+    id:11, name:'Люторецкий терминал', sub:'«Интермодал Логистикс Плюс»',
+    date:'дата зависит от прибытия автовоза',
     desc:'Сдача автомобиля в терминал для контейнерной ж/д отправки на Сахалин.',
     visited:false
   }
 ];
 
-// connector AFTER stops[i] (true = flight/dashed, false = ground/solid, null = none/fork)
-const connectorAfter = [true, true, false, false, false, true, false, false, 'fork', null];
+// connector AFTER stops[i] (true = flight/dashed, false = ground/solid, 'fork' = decision point, null = none)
+const connectorAfter = [true, true, false, false, false, false, false, true, false, 'fork', null];
 
 const NOTES_KEY = 'pajero-route-notes-v1';
 function loadNotes(){
@@ -448,7 +450,7 @@ function render(){
 
     timelineEl.appendChild(row);
 
-    if(stop.id === 9){
+    if(stop.id === 10){
       const fork = document.createElement('div');
       fork.className = 'tl-fork';
       fork.innerHTML = `
