@@ -8,336 +8,282 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #12151b;
-    --panel: #191d25;
-    --panel-2: #1f2430;
-    --line: #2a3040;
-    --text: #e9ebef;
-    --text-dim: #8a92a3;
-    --amber: #ff8a3d;
-    --amber-dim: #7a4a26;
-    --teal: #45d6c0;
-    --teal-dim: #204a44;
-    --red: #ff5d5d;
-    --radius: 10px;
+    --bg: #ffffff;
+    --panel: #f6f5f2;
+    --panel-2: #eeece7;
+    --line: #e2e0da;
+    --text: #1c1f26;
+    --text-dim: #82807a;
+    --amber: #e8631a;
+    --amber-soft: #fdead9;
+    --amber-line: #f0b686;
+    --teal: #0d8f83;
+    --teal-soft: #dcf3ef;
+    --teal-line: #8ccec5;
+    --red: #d64545;
+    --radius: 12px;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;}
-  ::selection{background:var(--amber);color:#1a1a1a;}
+  ::selection{background:var(--amber-soft);color:var(--amber);}
 
   .app{
+    max-width:640px;
+    margin:0 auto;
+    min-height:100vh;
     display:flex;
     flex-direction:column;
-    min-height:100vh;
   }
 
   /* ---------- HEADER ---------- */
   header{
-    padding:22px 28px 18px;
-    background:linear-gradient(180deg, #14181f 0%, #12151b 100%);
+    padding:20px 20px 16px;
     border-bottom:1px solid var(--line);
     display:flex;
-    align-items:flex-end;
-    justify-content:space-between;
-    gap:24px;
-    flex-wrap:wrap;
+    flex-direction:column;
+    gap:14px;
   }
-  .h-left{display:flex; flex-direction:column; gap:6px;}
   .eyebrow{
     font-family:'JetBrains Mono', monospace;
     font-size:11px;
-    letter-spacing:.18em;
+    letter-spacing:.16em;
     color:var(--amber);
     text-transform:uppercase;
+    font-weight:700;
   }
   h1{
-    margin:0;
+    margin:2px 0 0;
     font-family:'Space Grotesk', sans-serif;
     font-weight:700;
-    font-size:26px;
+    font-size:22px;
     letter-spacing:-.01em;
+    line-height:1.2;
   }
   .route-line{
     font-family:'JetBrains Mono', monospace;
-    font-size:12.5px;
+    font-size:11.5px;
     color:var(--text-dim);
+    line-height:1.5;
   }
-  .route-line b{color:var(--text); font-weight:500;}
+  .route-line b{color:var(--text); font-weight:600;}
 
   .odometer{
     display:flex;
     align-items:center;
-    gap:16px;
+    gap:14px;
     background:var(--panel);
     border:1px solid var(--line);
     border-radius:var(--radius);
-    padding:10px 18px;
+    padding:10px 16px;
   }
   .odo-digits{
     font-family:'JetBrains Mono', monospace;
-    font-size:28px;
+    font-size:24px;
     font-weight:700;
-    letter-spacing:.02em;
     color:var(--amber);
-    min-width:64px;
-    text-align:center;
+    min-width:56px;
   }
-  .odo-digits span{color:var(--text-dim); font-size:18px;}
-  .odo-ticks{display:flex; gap:4px;}
+  .odo-digits span{color:var(--text-dim); font-size:15px;}
+  .odo-ticks{display:flex; gap:4px; flex:1; flex-wrap:wrap;}
   .odo-tick{
-    width:9px; height:22px;
+    width:14px; height:8px;
     background:var(--panel-2);
     border:1px solid var(--line);
     border-radius:2px;
     transition:background .25s, border-color .25s;
   }
-  .odo-tick.on{ background:var(--teal); border-color:var(--teal); box-shadow:0 0 8px rgba(69,214,192,.5);}
-  .odo-label{font-family:'JetBrains Mono', monospace; font-size:10px; color:var(--text-dim); letter-spacing:.1em; text-transform:uppercase;}
+  .odo-tick.on{ background:var(--teal); border-color:var(--teal);}
+  .odo-label{font-family:'JetBrains Mono', monospace; font-size:9.5px; color:var(--text-dim); letter-spacing:.08em; text-transform:uppercase;}
 
-  /* ---------- TIMELINE ---------- */
-  .timeline-wrap{
-    background:var(--panel);
-    border-bottom:1px solid var(--line);
-    overflow-x:auto;
-    overflow-y:hidden;
-    padding:28px 24px 22px;
+  /* ---------- VERTICAL TIMELINE ---------- */
+  main{
+    flex:1;
+    padding:22px 20px 8px;
   }
-  .timeline{
+  .tl-row{
     display:flex;
-    align-items:flex-start;
-    min-width:max-content;
-    padding:0 60px;
-  }
-  .tl-item{
+    gap:14px;
     position:relative;
-    width:150px;
+  }
+  .tl-axis{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    width:36px;
     flex-shrink:0;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    cursor:pointer;
-  }
-  .tl-item:not(:first-child)::before{
-    content:'';
-    position:absolute;
-    left:-50%;
-    top:57px;
-    width:100%;
-    height:0;
-    border-top:2px solid var(--amber-dim);
-    z-index:0;
-  }
-  .tl-item.tl-flight:not(:first-child)::before{
-    border-top:2px dashed #4a5064;
-  }
-  .tl-item.visited:not(:first-child)::before{
-    border-top-color:var(--teal-dim);
-  }
-  .tl-item.tl-flight.visited:not(:first-child)::before{
-    border-top-color:var(--teal-dim);
-  }
-  .tl-label{
-    height:54px;
-    display:flex;
-    flex-direction:column;
-    justify-content:flex-end;
-    align-items:center;
-    text-align:center;
-    margin-bottom:10px;
-    padding:0 4px;
-  }
-  .tl-name{
-    font-family:'Space Grotesk', sans-serif;
-    font-weight:600;
-    font-size:12.5px;
-    line-height:1.25;
-  }
-  .tl-sub{
-    font-size:10.5px;
-    color:var(--text-dim);
-    margin-top:2px;
-    line-height:1.2;
   }
   .tl-dot{
-    position:relative;
-    z-index:1;
-    width:34px; height:34px;
+    width:36px; height:36px;
     border-radius:50%;
-    background:var(--panel-2);
+    background:#fff;
     border:2px solid var(--amber);
     color:var(--amber);
     display:flex; align-items:center; justify-content:center;
     font-family:'JetBrains Mono', monospace;
     font-weight:700; font-size:13px;
+    flex-shrink:0;
+    z-index:1;
     transition:.2s;
   }
-  .tl-item:hover .tl-dot{ transform:scale(1.08); }
-  .tl-item.visited .tl-dot{
+  .tl-dot.visited{
     border-color:var(--teal);
-    color:var(--teal);
-    background:var(--teal-dim);
-    box-shadow:0 0 10px rgba(69,214,192,.35);
+    color:#fff;
+    background:var(--teal);
   }
-  .tl-item.active .tl-dot{ box-shadow:0 0 0 4px rgba(255,138,61,.25); }
-  .tl-date{
-    margin-top:10px;
-    font-family:'JetBrains Mono', monospace;
-    font-size:10px;
-    color:var(--text-dim);
-    text-align:center;
-    white-space:nowrap;
-  }
-
-  /* ---------- CARDS PANEL ---------- */
-  .panel{
+  .tl-connector{
     flex:1;
-    padding:18px 24px 28px;
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
-    gap:12px;
-    align-content:start;
+    width:0;
+    min-height:34px;
+    border-left:2.5px solid var(--amber-line);
+    margin:2px 0;
   }
+  .tl-connector.flight{ border-left-style:dashed; }
+  .tl-connector.visited{ border-left-color:var(--teal-line); }
 
-  .stop-card{
+  .tl-content{
+    flex:1;
+    padding-bottom:26px;
+    min-width:0;
+  }
+  .tl-row.active .tl-dot{ box-shadow:0 0 0 4px var(--amber-soft); }
+
+  .tl-card{
     background:var(--panel);
     border:1px solid var(--line);
     border-radius:var(--radius);
-    padding:14px 16px;
+    padding:13px 15px;
+    margin-top:2px;
+  }
+  .tl-row.visited .tl-card{
+    background:var(--teal-soft);
+    border-color:var(--teal-line);
+  }
+  .tl-head{
     display:flex;
-    flex-direction:column;
-    gap:8px;
-    cursor:pointer;
-    transition:border-color .2s, transform .15s;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
   }
-  .stop-card:hover{border-color:#3a4258; transform:translateY(-2px);}
-  .stop-card.visited{border-color:var(--teal-dim); background:linear-gradient(180deg, rgba(69,214,192,.06), transparent 40%), var(--panel);}
-  .stop-card.active{border-color:var(--amber);}
-
-  .stop-top{display:flex; align-items:center; gap:10px;}
-  .stop-num{
-    font-family:'JetBrains Mono', monospace;
-    font-weight:700;
+  .tl-name{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:15px;
+    line-height:1.25;
+  }
+  .tl-sub{
     font-size:12px;
-    width:24px; height:24px;
-    border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    border:1px solid var(--amber-dim);
-    color:var(--amber);
-    flex-shrink:0;
-    transition:.2s;
+    color:var(--text-dim);
+    margin-top:1px;
   }
-  .stop-card.visited .stop-num{border-color:var(--teal); color:var(--teal); background:var(--teal-dim);}
-  .stop-titles{display:flex; flex-direction:column; gap:1px; min-width:0;}
-  .stop-name{font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:15px; line-height:1.2;}
-  .stop-sub{font-size:12px; color:var(--text-dim);}
-  .stop-date{
-    margin-left:auto;
+  .tl-date{
     font-family:'JetBrains Mono', monospace;
     font-size:11px;
     color:var(--text-dim);
     white-space:nowrap;
-    text-align:right;
   }
-  .stop-desc{font-size:13px; color:#c3c8d3; line-height:1.45;}
-
-  .stop-note{
+  .tl-desc{
+    font-size:13px;
+    color:#44423d;
+    line-height:1.45;
+    margin-top:6px;
+  }
+  .tl-note{
     width:100%;
-    background:var(--panel-2);
+    background:#fff;
     border:1px solid var(--line);
-    border-radius:6px;
+    border-radius:7px;
     color:var(--text);
     font-family:'Inter',sans-serif;
     font-size:12.5px;
     padding:7px 9px;
     resize:none;
+    margin-top:9px;
   }
-  .stop-note::placeholder{color:#5a6274;}
-  .stop-note:focus{outline:none; border-color:var(--amber-dim);}
+  .tl-note::placeholder{color:#a8a69f;}
+  .tl-note:focus{outline:none; border-color:var(--amber);}
 
-  .stop-actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .tl-actions{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    margin-top:10px;
+  }
   .mark-btn{
     font-family:'JetBrains Mono', monospace;
     font-size:11.5px;
-    letter-spacing:.04em;
+    letter-spacing:.03em;
     text-transform:uppercase;
-    border:1px solid var(--amber-dim);
-    background:transparent;
+    border:1.5px solid var(--amber);
+    background:#fff;
     color:var(--amber);
-    padding:7px 12px;
-    border-radius:6px;
+    padding:7px 13px;
+    border-radius:7px;
     cursor:pointer;
-    transition:.18s;
+    transition:.15s;
   }
-  .mark-btn:hover{background:rgba(255,138,61,.1);}
-  .stop-card.visited .mark-btn{
+  .mark-btn:active{ transform:scale(.97); }
+  .tl-row.visited .mark-btn{
     border-color:var(--teal);
     color:var(--teal);
   }
-  .stop-card.visited .mark-btn:hover{background:rgba(69,214,192,.12);}
   .visited-stamp{
     font-family:'JetBrains Mono', monospace;
     font-size:11px;
     color:var(--teal);
+    font-weight:600;
   }
 
   footer{
-    padding:10px 28px;
+    padding:14px 20px 26px;
     border-top:1px solid var(--line);
-    background:var(--panel);
     display:flex;
     justify-content:space-between;
     align-items:center;
     gap:12px;
     flex-wrap:wrap;
   }
-  footer p{margin:0; font-size:11.5px; color:var(--text-dim);}
+  footer p{margin:0; font-size:11px; color:var(--text-dim); line-height:1.4;}
   .reset-btn{
     font-family:'JetBrains Mono', monospace;
-    font-size:11px;
-    letter-spacing:.05em;
+    font-size:10.5px;
+    letter-spacing:.04em;
     text-transform:uppercase;
-    background:transparent;
+    background:#fff;
     border:1px solid var(--line);
     color:var(--text-dim);
     padding:7px 12px;
-    border-radius:6px;
+    border-radius:7px;
     cursor:pointer;
+    flex-shrink:0;
   }
-  .reset-btn:hover{border-color:var(--red); color:var(--red);}
+  .reset-btn:active{border-color:var(--red); color:var(--red);}
 
-  @media (max-width: 860px){
-    header{padding:16px;}
-    h1{font-size:20px;}
-    .panel{grid-template-columns:1fr; padding:14px;}
-    .timeline-wrap{padding:20px 16px;}
+  @media (min-width:480px){
+    .tl-dot{width:38px;height:38px;}
+    .tl-axis{width:38px;}
   }
 </style>
 </head>
 <body>
 <div class="app">
   <header>
-    <div class="h-left">
+    <div>
       <div class="eyebrow">Маршрутный лист · перегон авто</div>
       <h1>Южно-Сахалинск → Кавминводы → Москва</h1>
-      <div class="route-line">16–22 <b>июля 2026</b> · рейс <b>SU&nbsp;1747</b> / <b>SU&nbsp;1314</b> · бронь <b>VVZL9G</b> · 10 точек маршрута</div>
     </div>
+    <div class="route-line">16–22 <b>июля 2026</b> · рейс <b>SU&nbsp;1747</b> / <b>SU&nbsp;1314</b><br>бронь <b>VVZL9G</b> · 10 точек маршрута</div>
     <div class="odometer">
       <div>
         <div class="odo-digits" id="odoDigits">0<span>/10</span></div>
-        <div class="odo-label">точек пройдено</div>
+        <div class="odo-label">пройдено</div>
       </div>
       <div class="odo-ticks" id="odoTicks"></div>
     </div>
   </header>
 
-  <div class="timeline-wrap">
-    <div class="timeline" id="timeline"></div>
-  </div>
-
-  <div class="panel" id="panel"></div>
+  <main id="timeline"></main>
 
   <footer>
-    <p>Отметки сохраняются в этом браузере автоматически. Открывайте страницу на том же устройстве, чтобы видеть прогресс.</p>
+    <p>Отметки сохраняются в этом браузере автоматически.</p>
     <button class="reset-btn" id="resetBtn">Сбросить прогресс</button>
   </footer>
 </div>
@@ -347,70 +293,59 @@ const STORAGE_KEY = 'pajero-route-progress-v1';
 
 const stops = [
   {
-    id:1, type:'flight',
-    name:'Южно-Сахалинск', sub:'Аэропорт · вылет',
+    id:1, name:'Южно-Сахалинск', sub:'Аэропорт · вылет',
     date:'16 июля, 16:00',
     desc:'Вылет рейсом SU 1747 в Москву (Шереметьево). В пути 8 ч 55 мин.'
   },
   {
-    id:2, type:'flight',
-    name:'Москва (Шереметьево)', sub:'Пересадка',
+    id:2, name:'Москва (Шереметьево)', sub:'Пересадка',
     date:'16 июля, 16:55 → 19:35',
     desc:'Стыковка 2 ч 40 мин без смены терминала. Вылет рейсом SU 1314 в Минеральные Воды.'
   },
   {
-    id:3, type:'flight',
-    name:'Минеральные Воды', sub:'Аэропорт · прилёт',
+    id:3, name:'Минеральные Воды', sub:'Аэропорт · прилёт',
     date:'16 июля, 22:35',
     desc:'Прилёт на Кавказ. Дальше — трансфер до Ессентуков.'
   },
   {
-    id:4, type:'stay',
-    name:'Ессентуки, ул. Шмидта, 94', sub:'Заселение',
+    id:4, name:'Ессентуки, ул. Шмидта, 94', sub:'Заселение',
     date:'16 июля, ≈23:30',
     desc:'Заселение на ночь перед завтрашней регистрацией в ГИБДД.'
   },
   {
-    id:5, type:'task',
-    name:'Ессентуки, ул. Баучидзе, 23', sub:'ОГИБДД · оформление',
+    id:5, name:'Ессентуки, ул. Баучидзе, 23', sub:'ОГИБДД · оформление',
     date:'17 июля, 9:00',
     desc:'Регистрация ТС.'
   },
   {
-    id:6, type:'task',
-    name:'Минеральные Воды', sub:'Погрузка на автовоз',
+    id:6, name:'Минеральные Воды', sub:'Погрузка на автовоз',
     date:'17–18 июля',
     desc:'Передача автомобиля перевозчику для доставки в Московскую область.'
   },
   {
-    id:7, type:'flight',
-    name:'Минеральные Воды', sub:'Аэропорт · вылет',
+    id:7, name:'Минеральные Воды', sub:'Аэропорт · вылет',
     date:'19 июля',
     desc:'Обратный вылет в Москву.'
   },
   {
-    id:8, type:'stay',
-    name:'Москва, Красный Строитель', sub:'Заселение',
+    id:8, name:'Москва, Красный Строитель', sub:'Заселение',
     date:'19–20 июля',
     desc:'Заселение, ожидание автовоза с автомобилем.'
   },
   {
-    id:9, type:'task',
-    name:'Симферопольское шоссе, 3Б', sub:'Встреча автовоза',
+    id:9, name:'Симферопольское шоссе, 3Б', sub:'Встреча автовоза',
     date:'20–21 июля',
     desc:'Встреча автомобиля после доставки автовозом из Минеральных Вод.'
   },
   {
-    id:10, type:'task',
-    name:'Симферопольское шоссе, 3Б', sub:'Терминал «Интермодал Логистикс Плюс»',
+    id:10, name:'Симферопольское шоссе, 3Б', sub:'Терминал «Интермодал Логистикс Плюс»',
     date:'21–22 июля',
     desc:'Сдача автомобиля в терминал для контейнерной ж/д отправки на Сахалин.'
   }
 ];
 
-// segments[i] describes the connector BEFORE stops[i] (i.e. between stops[i-1] and stops[i])
-// true = flight (dashed), false = ground (solid)
-const segments = [null, true, true, false, false, false, true, false, false, false];
+// connector AFTER stops[i] (true = flight/dashed, false = ground/solid)
+const connectorAfter = [true, true, false, false, false, true, false, false, false, null];
 
 function loadProgress(){
   try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
@@ -419,70 +354,54 @@ function loadProgress(){
 function saveProgress(p){ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
 let progress = loadProgress();
 
-// ---------- TIMELINE ----------
 const timelineEl = document.getElementById('timeline');
 
-function buildTimeline(){
+function render(){
   timelineEl.innerHTML = '';
   stops.forEach((stop, i)=>{
-    const visited = !!(progress[stop.id] && progress[stop.id].visited);
-    const item = document.createElement('div');
-    item.className = 'tl-item' + (visited ? ' visited' : '') + (segments[i] ? ' tl-flight' : '');
-    item.dataset.id = stop.id;
-    item.innerHTML = `
-      <div class="tl-label">
-        <div class="tl-name">${stop.name}</div>
-        <div class="tl-sub">${stop.sub}</div>
-      </div>
-      <div class="tl-dot">${stop.id}</div>
-      <div class="tl-date">${stop.date}</div>
-    `;
-    item.addEventListener('click', ()=> focusStop(stop.id));
-    timelineEl.appendChild(item);
-  });
-}
-
-// ---------- PANEL ----------
-const panel = document.getElementById('panel');
-
-function renderPanel(){
-  panel.innerHTML = '';
-  stops.forEach(stop=>{
     const rec = progress[stop.id] || {};
-    const card = document.createElement('div');
-    card.className = 'stop-card' + (rec.visited ? ' visited' : '');
-    card.dataset.id = stop.id;
+    const visited = !!rec.visited;
 
-    card.innerHTML = `
-      <div class="stop-top">
-        <div class="stop-num">${stop.id}</div>
-        <div class="stop-titles">
-          <div class="stop-name">${stop.name}</div>
-          <div class="stop-sub">${stop.sub}</div>
-        </div>
-        <div class="stop-date">${stop.date}</div>
+    const row = document.createElement('div');
+    row.className = 'tl-row' + (visited ? ' visited' : '');
+    row.dataset.id = stop.id;
+
+    const connector = connectorAfter[i] !== null
+      ? `<div class="tl-connector ${connectorAfter[i] ? 'flight' : ''} ${visited ? 'visited' : ''}"></div>`
+      : '';
+
+    row.innerHTML = `
+      <div class="tl-axis">
+        <div class="tl-dot ${visited ? 'visited' : ''}">${stop.id}</div>
+        ${connector}
       </div>
-      <div class="stop-desc">${stop.desc}</div>
-      <textarea class="stop-note" rows="1" placeholder="Заметка на точке (необязательно)…">${rec.note || ''}</textarea>
-      <div class="stop-actions">
-        <button class="mark-btn">${rec.visited ? 'Снять отметку' : 'Мы на точке'}</button>
-        ${rec.visited && rec.timestamp ? `<span class="visited-stamp">✓ отмечено ${rec.timestamp}</span>` : ''}
+      <div class="tl-content">
+        <div class="tl-card">
+          <div class="tl-head">
+            <div>
+              <div class="tl-name">${stop.name}</div>
+              <div class="tl-sub">${stop.sub}</div>
+            </div>
+            <div class="tl-date">${stop.date}</div>
+          </div>
+          <div class="tl-desc">${stop.desc}</div>
+          <textarea class="tl-note" rows="1" placeholder="Заметка на точке (необязательно)…">${rec.note || ''}</textarea>
+          <div class="tl-actions">
+            <button class="mark-btn">${visited ? 'Снять отметку' : 'Мы на точке'}</button>
+            ${visited && rec.timestamp ? `<span class="visited-stamp">✓ отмечено ${rec.timestamp}</span>` : ''}
+          </div>
+        </div>
       </div>
     `;
 
-    card.querySelector('.mark-btn').addEventListener('click', (e)=>{
-      e.stopPropagation();
-      toggleVisited(stop.id);
-    });
-    card.querySelector('.stop-note').addEventListener('click', e=>e.stopPropagation());
-    card.querySelector('.stop-note').addEventListener('change', (e)=>{
+    row.querySelector('.mark-btn').addEventListener('click', ()=> toggleVisited(stop.id));
+    row.querySelector('.tl-note').addEventListener('change', (e)=>{
       progress[stop.id] = progress[stop.id] || {};
       progress[stop.id].note = e.target.value;
       saveProgress(progress);
     });
-    card.addEventListener('click', ()=> focusStop(stop.id));
 
-    panel.appendChild(card);
+    timelineEl.appendChild(row);
   });
 }
 
@@ -493,24 +412,10 @@ function toggleVisited(id){
   progress[id].visited = !progress[id].visited;
   progress[id].timestamp = progress[id].visited ? stamp : null;
   saveProgress(progress);
-  renderPanel();
-  buildTimeline();
+  render();
   updateOdometer();
 }
 
-function focusStop(id){
-  document.querySelectorAll('.tl-item').forEach(el=>el.classList.remove('active'));
-  const tlItem = timelineEl.querySelector(`.tl-item[data-id="${id}"]`);
-  if(tlItem){
-    tlItem.classList.add('active');
-    tlItem.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
-  }
-  document.querySelectorAll('.stop-card').forEach(c=>c.classList.remove('active'));
-  const card = panel.querySelector(`.stop-card[data-id="${id}"]`);
-  if(card){ card.classList.add('active'); card.scrollIntoView({behavior:'smooth', block:'nearest'}); }
-}
-
-// ---------- ODOMETER ----------
 const odoTicks = document.getElementById('odoTicks');
 stops.forEach(()=>{
   const t = document.createElement('div');
@@ -521,22 +426,19 @@ stops.forEach(()=>{
 function updateOdometer(){
   const visitedCount = stops.filter(s => progress[s.id] && progress[s.id].visited).length;
   document.getElementById('odoDigits').innerHTML = `${visitedCount}<span>/${stops.length}</span>`;
-  const ticks = document.querySelectorAll('.odo-tick');
-  ticks.forEach((t,i)=> t.classList.toggle('on', i < visitedCount));
+  document.querySelectorAll('.odo-tick').forEach((t,i)=> t.classList.toggle('on', i < visitedCount));
 }
 
 document.getElementById('resetBtn').addEventListener('click', ()=>{
   if(confirm('Сбросить все отметки о прохождении точек?')){
     progress = {};
     saveProgress(progress);
-    renderPanel();
-    buildTimeline();
+    render();
     updateOdometer();
   }
 });
 
-buildTimeline();
-renderPanel();
+render();
 updateOdometer();
 </script>
 </body>
