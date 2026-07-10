@@ -55,9 +55,10 @@
     margin:2px 0 0;
     font-family:'Space Grotesk', sans-serif;
     font-weight:700;
-    font-size:22px;
+    font-size:clamp(13px, 5.1vw, 22px);
     letter-spacing:-.01em;
     line-height:1.2;
+    white-space:nowrap;
   }
   .route-line{
     font-family:'JetBrains Mono', monospace;
@@ -235,6 +236,16 @@
     line-height:1.45;
     margin-top:6px;
   }
+  .tl-weather{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    color:var(--amber);
+    background:var(--amber-soft);
+    display:inline-block;
+    padding:4px 9px;
+    border-radius:6px;
+    margin-top:8px;
+  }
   .tl-note{
     width:100%;
     background:#fff;
@@ -335,67 +346,67 @@ const stops = [
     id:1, name:'Южно-Сахалинск', sub:'Аэропорт · вылет',
     date:'16 июля, 16:00',
     desc:'Вылет рейсом SU 1747 в Москву (Шереметьево). В пути 8 ч 55 мин. Прилёт — 16:55.',
-    visited:false
+    visited:false, lat:46.9591, lon:142.7178, isoDate:'2026-07-16'
   },
   {
     id:2, name:'Москва (Шереметьево)', sub:'Пересадка',
     date:'16 июля, 16:55',
     desc:'Вылет рейсом SU 1314 в Минеральные Воды — 19:35. В пути 3 ч. Прилёт — 22:35.',
-    visited:false
+    visited:false, lat:55.9726, lon:37.4146, isoDate:'2026-07-16'
   },
   {
     id:3, name:'Минеральные Воды', sub:'Аэропорт · прилёт',
     date:'16 июля, 22:35',
     desc:'Прилёт на Кавказ. Дальше — трансфер до Ессентуков.',
-    visited:false
+    visited:false, lat:44.2251, lon:43.0819, isoDate:'2026-07-16'
   },
   {
     id:4, name:'Ессентуки, ул. Шмидта, 94', sub:'Заселение',
     date:'16 июля, ≈23:30',
     desc:'Заселение на ночь перед завтрашней регистрацией в ГИБДД.',
-    visited:false
+    visited:false, lat:44.0453, lon:42.8578, isoDate:'2026-07-16'
   },
   {
     id:5, name:'Ессентуки, ул. Баучидзе, 23', sub:'ОГИБДД · оформление',
     date:'17 июля, 9:00',
     desc:'Регистрация ТС.',
-    visited:false
+    visited:false, lat:44.0470, lon:42.8610, isoDate:'2026-07-17'
   },
   {
     id:6, name:'Минеральные Воды', sub:'Погрузка на автовоз',
     date:'17–18 июля',
     desc:'Передача автомобиля перевозчику для доставки в Московскую область.',
-    visited:false
+    visited:false, lat:44.2019, lon:43.1367, isoDate:'2026-07-17'
   },
   {
-    id:7, name:'Ессентуки', sub:'Свободное время',
+    id:7, name:'Ессентуки', sub:'Прогулка по КМВ',
     date:'18–19 июля',
     desc:'Машина уже в пути на автовозе — остаёмся в Ессентуках и смотрим достопримечательности Кавказских Минеральных Вод.',
-    visited:false
+    visited:false, lat:44.0453, lon:42.8578, isoDate:'2026-07-18'
   },
   {
     id:8, name:'Минеральные Воды', sub:'Аэропорт · вылет',
     date:'19 июля',
     desc:'Обратный вылет в Москву.',
-    visited:false
+    visited:false, lat:44.2251, lon:43.0819, isoDate:'2026-07-19'
   },
   {
-    id:9, name:'Москва, Красный Строитель', sub:'Заселение',
+    id:9, name:'Москва, Красный Строитель', sub:'Ждём автовоз из Минвод',
     date:'19 июля, после 18:00',
     desc:'Днём прилетаем из Минеральных Вод, гуляем по Москве, вечером — заселение на Красном Строителе. Ждём автовоз с машиной из Минвод.',
-    visited:false
+    visited:false, lat:55.5980, lon:37.5910, isoDate:'2026-07-19'
   },
   {
     id:10, name:'п. Битца, Симферопольское шоссе, 3Б', sub:'Встреча автовоза',
     date:'20–21 июля',
     desc:'Если автовоз приходит в первой половине дня и машину выдают до обеда — едем сразу на Люторецкий терминал. Если ближе к вечеру — едем ночевать в Чехов, а на терминал — утром следующего дня.',
-    visited:false
+    visited:false, lat:55.5670, lon:37.5670, isoDate:'2026-07-20'
   },
   {
     id:11, name:'Люторецкий терминал', sub:'«Интермодал Логистикс Плюс»',
     date:'дата зависит от прибытия автовоза',
     desc:'Сдача автомобиля в терминал для контейнерной ж/д отправки на Сахалин.',
-    visited:false
+    visited:false, lat:55.5680, lon:37.5680, isoDate:null
   }
 ];
 
@@ -441,6 +452,7 @@ function render(){
             <div class="tl-date">${stop.date}</div>
           </div>
           <div class="tl-desc">${stop.desc}</div>
+          ${stop.isoDate ? `<div class="tl-weather" id="wx-${stop.id}">🌡 загрузка прогноза…</div>` : ''}
           <textarea class="tl-note" rows="1" placeholder="Заметка на точке (необязательно)…">${notes[stop.id] || ''}</textarea>
           ${visited ? `<div class="tl-actions"><span class="visited-stamp">✓ пройдено</span></div>` : ''}
         </div>
@@ -489,6 +501,42 @@ function updateOdometer(){
 
 render();
 updateOdometer();
+loadWeather();
+
+function weatherEmoji(code){
+  if(code === 0) return '☀️';
+  if([1,2].includes(code)) return '🌤️';
+  if(code === 3) return '☁️';
+  if([45,48].includes(code)) return '🌫️';
+  if([51,53,55,56,57].includes(code)) return '🌦️';
+  if([61,63,65,66,67,80,81,82].includes(code)) return '🌧️';
+  if([71,73,75,77,85,86].includes(code)) return '🌨️';
+  if([95,96,99].includes(code)) return '⛈️';
+  return '🌡️';
+}
+
+async function loadWeather(){
+  const targets = stops.filter(s => s.isoDate);
+  for(const stop of targets){
+    const el = document.getElementById(`wx-${stop.id}`);
+    if(!el) continue;
+    try{
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${stop.lat}&longitude=${stop.lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&timezone=auto&start_date=${stop.isoDate}&end_date=${stop.isoDate}`;
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('bad response');
+      const data = await res.json();
+      const d = data.daily;
+      if(!d || !d.temperature_2m_max || d.temperature_2m_max.length === 0) throw new Error('no data');
+      const tMax = Math.round(d.temperature_2m_max[0]);
+      const tMin = Math.round(d.temperature_2m_min[0]);
+      const rain = d.precipitation_probability_max ? d.precipitation_probability_max[0] : null;
+      const icon = weatherEmoji(d.weathercode ? d.weathercode[0] : null);
+      el.innerHTML = `${icon} ${tMin}…${tMax}°C${rain !== null ? ` · осадки ${rain}%` : ''}`;
+    }catch(e){
+      el.remove();
+    }
+  }
+}
 </script>
 </body>
 </html>
