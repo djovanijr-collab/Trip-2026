@@ -227,7 +227,9 @@
     font-family:'JetBrains Mono', monospace;
     font-size:11px;
     color:var(--text-dim);
-    white-space:nowrap;
+    white-space:normal;
+    text-align:right;
+    max-width:38%;
     flex-shrink:0;
   }
   .tl-desc{
@@ -529,9 +531,8 @@ async function loadWeather(){
       if(!d || !d.temperature_2m_max || d.temperature_2m_max.length === 0) throw new Error('no data');
       const tMax = Math.round(d.temperature_2m_max[0]);
       const tMin = Math.round(d.temperature_2m_min[0]);
-      const rain = d.precipitation_probability_max ? d.precipitation_probability_max[0] : null;
       const icon = weatherEmoji(d.weathercode ? d.weathercode[0] : null);
-      el.innerHTML = `${icon} ${tMin}…${tMax}°C${rain !== null ? ` · осадки ${rain}%` : ''}`;
+      el.innerHTML = `${icon} ${tMin}…${tMax}°C`;
     }catch(e){
       el.remove();
     }
