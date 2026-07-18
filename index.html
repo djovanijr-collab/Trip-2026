@@ -341,7 +341,7 @@
     </div>
     <div class="odometer">
       <div>
-        <div class="odo-digits" id="odoDigits">0<span>/11</span></div>
+        <div class="odo-digits" id="odoDigits">0<span>/10</span></div>
         <div class="odo-label">пройдено</div>
       </div>
       <div class="odo-ticks" id="odoTicks"></div>
@@ -390,39 +390,33 @@ const stops = [
     visited:true, lat:44.2019, lon:43.1367, isoDate:'2026-07-18'
   },
   {
-    id:7, name:'Ессентуки', sub:'Прогулка по КМВ',
-    date:'18–19 июля',
-    desc:'Свободный день перед вылетом в Москву.',
-    visited:false, lat:44.0453, lon:42.8578, isoDate:'2026-07-18'
-  },
-  {
-    id:8, name:'Минеральные Воды', sub:'Аэропорт · вылет',
+    id:7, name:'Минеральные Воды', sub:'Аэропорт · вылет',
     date:'18 июля, 15:00',
     desc:'Обратный вылет в Москву.',
     visited:false, lat:44.2251, lon:43.0819, isoDate:'2026-07-18'
   },
   {
-    id:9, name:'Москва', sub:'Красный Строитель',
+    id:8, name:'Москва', sub:'Красный Строитель',
     date:'19 июля, после 18:00',
-    desc:'Днём прилетаем из Минеральных Вод, вечером — заселение на Красном Строителе. Ждём автовоз с машиной из Минеральных Вод.',
-    visited:false, lat:55.5980, lon:37.5910, isoDate:'2026-07-19'
+    desc:'Днём прилетаем из Минеральных Вод, вечером — заселение на Красном Строителе. Ждём автовоз с машиной из Минеральных Вод — должен прийти в воскресенье вечером.',
+    visited:true, lat:55.5980, lon:37.5910, isoDate:'2026-07-19'
   },
   {
-    id:10, name:'Москва', sub:'п. Битца, Симферопольское шоссе, 3Б',
-    date:'20–21 июля',
-    desc:'От станции Битца — пешком до стоянки автовоза. <a href="https://2gis.ru/moscow/directions/tab/pedestrian/points/37.6115%2C55.5711%3B70030076195138573%7C37.6055%2C55.5706%3B4504222397628650" target="_blank" rel="noopener">маршрут в 2ГИС</a><br><br>Если автовоз приходит в первой половине дня и машину выдают до обеда — едем сразу на Люторецкий терминал. <a href="https://2gis.ru/moscow/directions/tab/car/points/37.6036%2C55.571%3B4504338361778898%7C37.5335%2C55.1113%3B70000001064667717" target="_blank" rel="noopener">маршрут в 2ГИС</a><br><br>Если ближе к вечеру — едем ночевать в Красный Строитель. <a href="https://2gis.ru/moscow/directions/points/37.605471%2C55.570555%3B4504222397628650%7C37.610743%2C55.586503%3B70030076344488950?m=37.614447%2C55.578297%2F14.91" target="_blank" rel="noopener">маршрут в 2ГИС</a><br><br>Утром следующего дня — на Люторецкий терминал. <a href="https://2gis.ru/moscow/directions/tab/car/points/37.6108%2C55.5865%3B70000001059390088%7C37.5335%2C55.1113%3B70000001064667717" target="_blank" rel="noopener">маршрут в 2ГИС</a>',
-    visited:false, lat:55.5670, lon:37.5670, isoDate:'2026-07-20'
+    id:9, name:'Москва', sub:'п. Битца, Симферопольское шоссе, 3Б',
+    date:'19 июля (вс), вечером',
+    desc:'От станции Битца — пешком до стоянки автовоза. <a href="https://2gis.ru/moscow/directions/tab/pedestrian/points/37.6115%2C55.5711%3B70030076195138573%7C37.6055%2C55.5706%3B4504222397628650" target="_blank" rel="noopener">маршрут в 2ГИС</a><br><br>Автовоз приезжает в воскресенье вечером. Ночуем в Красном Строителе. <a href="https://2gis.ru/moscow/directions/points/37.605471%2C55.570555%3B4504222397628650%7C37.610743%2C55.586503%3B70030076344488950?m=37.614447%2C55.578297%2F14.91" target="_blank" rel="noopener">маршрут в 2ГИС</a><br><br>В понедельник утром — на Люторецкий терминал. <a href="https://2gis.ru/moscow/directions/tab/car/points/37.6108%2C55.5865%3B70000001059390088%7C37.5335%2C55.1113%3B70000001064667717" target="_blank" rel="noopener">маршрут в 2ГИС</a>',
+    visited:false, lat:55.5670, lon:37.5670, isoDate:'2026-07-19'
   },
   {
-    id:11, name:'Люторецкий терминал', sub:'«Интермодал Логистикс Плюс»',
-    date:'дата зависит от прибытия автовоза',
+    id:10, name:'Люторецкий терминал', sub:'«Интермодал Логистикс Плюс»',
+    date:'20 июля (пн), утро',
     desc:'Сдача автомобиля в терминал для контейнерной ж/д отправки на Сахалин.',
-    visited:false, lat:55.5680, lon:37.5680, isoDate:null
+    visited:false, lat:55.5680, lon:37.5680, isoDate:'2026-07-20'
   }
 ];
 
-// connector AFTER stops[i] (true = flight/dashed, false = ground/solid, 'fork' = decision point, null = none)
-const connectorAfter = [true, true, false, false, false, false, false, true, false, 'fork', null];
+// connector AFTER stops[i] (true = flight/dashed, false = ground/solid, null = none)
+const connectorAfter = [true, true, false, false, false, false, true, false, false, null];
 
 const NOTES_KEY = 'pajero-route-notes-v1';
 function loadNotes(){
@@ -476,24 +470,6 @@ function render(){
     });
 
     timelineEl.appendChild(row);
-
-    if(stop.id === 10){
-      const fork = document.createElement('div');
-      fork.className = 'tl-fork';
-      fork.innerHTML = `
-        <div class="fork-caption">Дальше — 2 варианта, смотря когда придёт автовоз</div>
-        <div class="fork-option fork-a">
-          <div class="fork-title">Вариант A · выдали до обеда</div>
-          <div class="fork-desc">Едем сразу на Люторецкий терминал в тот же день. <a href="https://2gis.ru/moscow/directions/tab/car/points/37.6036%2C55.571%3B4504338361778898%7C37.5335%2C55.1113%3B70000001064667717" target="_blank" rel="noopener">маршрут в 2ГИС</a></div>
-        </div>
-        <div class="fork-option fork-b">
-          <div class="fork-title">Вариант B · автовоз вечером</div>
-          <div class="fork-desc">Едем ночевать в Красный Строитель. <a href="https://2gis.ru/moscow/directions/points/37.605471%2C55.570555%3B4504222397628650%7C37.610743%2C55.586503%3B70030076344488950?m=37.614447%2C55.578297%2F14.91" target="_blank" rel="noopener">маршрут в 2ГИС</a></div>
-          <div class="fork-step">↓ утром следующего дня — на Люторецкий терминал. <a href="https://2gis.ru/moscow/directions/tab/car/points/37.6108%2C55.5865%3B70000001059390088%7C37.5335%2C55.1113%3B70000001064667717" target="_blank" rel="noopener">маршрут в 2ГИС</a></div>
-        </div>
-      `;
-      timelineEl.appendChild(fork);
-    }
   });
 }
 
